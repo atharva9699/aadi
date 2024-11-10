@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void clook(int arr[], int n, int head) {
+    int total_movement = 0;
+    int left[n], right[n], l = 0, r = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < head)
+            left[l++] = arr[i];
+        else
+            right[r++] = arr[i];
+    }
+
+    for (int i = 0; i < l - 1; i++) {
+        for (int j = 0; j < l - i - 1; j++) {
+            if (left[j] > left[j + 1]) {
+                int temp = left[j];
+                left[j] = left[j + 1];
+                left[j + 1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < r - 1; i++) {
+        for (int j = 0; j < r - i - 1; j++) {
+            if (right[j] > right[j + 1]) {
+                int temp = right[j];
+                right[j] = right[j + 1];
+                right[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("C-LOOK Seek Sequence: %d", head);
+
+    for (int i = l - 1; i >= 0; i--) {
+        printf(" -> %d", left[i]);
+        total_movement += abs(head - left[i]);
+        head = left[i];
+    }
+
+    total_movement += abs(head - right[r - 1]);
+    head = right[r - 1];
+
+    for (int i = r - 2; i >= 0; i--) {
+        printf(" -> %d", right[i]);
+        total_movement += abs(head - right[i]);
+        head = right[i];
+    }
+
+    printf("\nTotal head movement: %d\n", total_movement);
+}
+
+int main() {
+    int n, head;
+
+    printf("Enter the number of requests: ");
+    scanf("%d", &n);
+
+    int arr[n];
+    printf("Enter the requests: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    printf("Enter the initial head position: ");
+    scanf("%d", &head);
+
+    clook(arr, n, head);
+
+    return 0;
+}
