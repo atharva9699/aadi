@@ -1,0 +1,108 @@
+#include<iostream>
+using namespace std;
+
+bool isSafe(int processes[],int avail[],int max[][101],int alloc[][101],int p,int re){
+    int need[101][101];
+
+    bool finish[p]={false};
+    int safeSeq[p];
+    int currAvail[re];
+
+    for(int i=0;i<p;i++){
+        for(int j=0;j<re;j++){
+            need[i][j]=max[i][j]-alloc[i][j];
+        }
+    }
+
+    for(int i=0;i<re;i++){
+        currAvail[i]=avail[i];
+    }
+
+    int cnt=0;
+    while(cnt<p){
+        bool found=false;
+        for(int n=0;n<p;n++){
+            if(!finish[n]){
+                int j;
+                for(j=0;j<re;j++){
+                    if(need[n][j]>currAvail[j]){
+                        break;
+                    }
+                }
+                if(j==re){
+                    for(int k=0;k<re;k++){
+                       currAvail[k]+=alloc[n][k];
+                    }
+                
+                safeSeq[cnt++]=n;
+                finish[n]=true;
+                found=true;
+            }
+        }
+    }
+
+    if (!found) {
+   cout << "System is in an unsafe state." << endl;
+    return false;
+ }
+    } 
+ for(int i=0;i<p;i++){
+    cout<<"p"<<safeSeq[i]<<" ";
+ }
+ cout<<endl;
+ return true;
+     
+}
+
+int main(){
+    cout<<"Enter total number of Resources:";
+    int re;
+    cin>>re;
+
+    cout<<"Enter total number of Processes:";
+    int p;
+    cin>>p;
+
+    cout<<"Enter Allocation Matrix of process:\n";
+    int alloc[101][101];
+    int max[101][101];
+    for(int i=0;i<p;i++){
+        for(int j=0;j<re;j++){
+            cin>>alloc[i][j];
+        }
+    }
+
+    cout<<"Enter Maximum Resources need matrix:\n";
+    for(int i=0;i<p;i++){
+        for(int j=0;j<re;j++){
+            cin>>max[i][j];
+        }
+    }
+
+    int resource[101];
+    cout<<"Enter Resources matrix:\n";
+    for(int i=0;i<re;i++){
+        cout << "Enter available resources for resource type " << i << ": ";
+        cin>>resource[i];
+    }
+
+    int avail[101];
+    for(int i=0;i<re;i++){
+        for(int j=0;j<p;j++){
+            resource[i]-=alloc[j][i];
+            avail[i]=resource[i];
+        }
+    }
+    cout<<"Here Available resource matrix is:\n";
+    for(int i=0;i<re;i++){
+        cout<<avail[i]<<" ";
+    }
+
+   int processes[10];
+   for(int i=0;i<p;i++){
+    processes[i]=i;
+   }
+
+   isSafe(processes,avail,max,alloc,p,re);
+   return 0;
+}
