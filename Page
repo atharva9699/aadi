@@ -1,0 +1,153 @@
+#include <stdio.h>
+#include <limits.h>
+
+void displayFrames(int frames[], int frameSize) {
+    for (int i = 0; i < frameSize; i++) {
+        if (frames[i] == -1)
+            printf("- ");
+        else
+            printf("%d ", frames[i]);
+    }
+    printf("\n");
+}
+
+// FIFO Page Replacement Algorithm
+int FIFO(int pages[], int n, int frameSize) {
+    int frames[frameSize], pageFaults = 0, index = 0;
+    for (int i = 0; i < frameSize; i++) frames[i] = -1;  
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) { 
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            frames[index] = pages[i];
+            index = (index + 1) % frameSize;
+            pageFaults++;
+            displayFrames(frames, frameSize);
+        }
+    }
+    return pageFaults;
+}
+
+int findLRU(int time[], int n) {
+    int min = 0;
+    for (int i = 1; i < n; i++) {
+        if (time[i] < time[min]) {
+            min = i;
+        }
+    }
+    return min;
+}
+
+// LRU Page Replacement Algorithm
+int LRU(int pages[], int n, int frameSize) {
+    int frames[frameSize],time[frameSize], pageFaults = 0, counter = 0;
+
+   
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+        time[i] = 0;
+    }
+
+    
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        counter++;
+
+        
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {  
+                time[j] = counter;
+                found = 1;
+                break;
+            }
+        }
+
+        
+        if (!found) {
+            int lruIndex = findLRU(time, frameSize);
+
+            
+            frames[lruIndex] = pages[i];
+            time[lruIndex] = counter;
+            pageFaults++;
+
+            displayFrames(frames, frameSize);  
+        }
+    }
+
+    return pageFaults;
+}
+
+// Optimal Page Replacement Algorithm
+int Optimal(int pages[], int n, int frameSize) {
+    int frames[frameSize], pageFaults = 0;
+    
+    for (int i = 0; i < frameSize; i++) frames[i] = -1;
+
+    for (int i = 0; i < n; i++) {
+        int found = 0;
+        
+        
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found) {
+            int replaceIndex = -1, farthest = i + 1;
+            for (int j = 0; j < frameSize; j++) {
+                int k;
+                for (k = i + 1; k < n; k++) {
+                    if (frames[j] == pages[k]) break;
+                }
+                if (k > farthest) {
+                    farthest = k;
+                    replaceIndex = j;
+                }
+                if (replaceIndex == -1 || frames[j] == -1) {
+                    replaceIndex = j;
+                }
+            }
+
+            frames[replaceIndex] = pages[i]; 
+            pageFaults++;
+            displayFrames(frames, frameSize);  
+        }
+    }
+
+    return pageFaults;
+}
+
+int main() {
+    int n, frameSize;
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+    int pages[n];
+    
+    printf("Enter page reference string: ");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &pages[i]);
+    }
+    
+    printf("Enter frame size (minimum 3): ");
+    scanf("%d", &frameSize);
+    
+    if (frameSize < 3) {
+        printf("Frame size must be at least 3.\n");
+        return 1;  
+    }
+
+    printf("\nFIFO Page Faults: %d\n", FIFO(pages, n, frameSize));
+    printf("\nLRU Page Faults: %d\n", LRU(pages, n, frameSize));
+    printf("\nOptimal Page Faults: %d\n", Optimal(pages, n, frameSize));
+    
+    return 0;
+}
